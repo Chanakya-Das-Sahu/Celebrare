@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useMemo, useCallback, useReducer } from "react";
-import { useFetchPhotos, Photo } from "../hooks/useFetchPhotos";
+import React, { useState, useMemo, useReducer } from "react";
+import { useFetchPhotos } from "../hooks/useFetchPhotos";
 import { favoritesReducer, initialState } from "../reducer/favoritesReducer";
 import PhotoCard from "./PhotoCard";
 
@@ -9,24 +9,23 @@ export default function Gallery() {
   const [favs, dispatch] = useReducer(favoritesReducer, initialState);
   const [search, setSearch] = useState("");
 
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
   };
 
-
-  console.log("favs",favs)
-
   const filteredPhotos = useMemo(() => {
     return photos.filter((p) =>
-      p.author.toLowerCase().includes(search.toLowerCase()),
+      p.author.toLowerCase().includes(search.toLowerCase())
     );
   }, [photos, search]);
 
   if (loading)
     return (
-      <div className="p-10 text-center font-bold text-black bg-white h-screen">Loading...</div>
+      <div className="p-10 text-center font-bold text-black bg-white h-screen">
+        Loading...
+      </div>
     );
+    
   if (error)
     return <div className="text-red-500 text-center p-10">{error}</div>;
 
@@ -39,16 +38,24 @@ export default function Gallery() {
         onChange={handleSearch}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {filteredPhotos.map((p) => (
-       <PhotoCard
-            key={p.id}
-            photo={p}
-            isFavorite={favs.some((f) => f.id === p.id)}
-            onToggleFavorite={()=>{dispatch({ type: "TOGGLE_FAVORITE", payload: p })}}
-          />
-        ))}
-      </div>
+      {filteredPhotos.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {filteredPhotos.map((p) => (
+            <PhotoCard
+              key={p.id}
+              photo={p}
+              isFavorite={favs.some((f) => f.id === p.id)}
+              onToggleFavorite={() => {
+                dispatch({ type: "TOGGLE_FAVORITE", payload: p });
+              }}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center rounded-xl">
+          <p className="text-xl text-gray-500 font-medium">No Result Found</p>
+        </div>
+      )}
     </div>
   );
 }

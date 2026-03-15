@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { Photo } from "../hooks/useFetchPhotos";
+import Image from "next/image";
 
 interface PhotoCardProps {
   photo: Photo;
@@ -15,7 +16,7 @@ const PhotoCard = React.memo(({ photo, isFavorite, onToggleFavorite }: PhotoCard
         src={photo.download_url}
         alt={photo.author}
         className="w-full h-56 object-cover"
-        loading="lazy"
+        // loading="lazy"
       />
       <div className="p-4">
         <p className="font-semibold text-gray-800">{photo.author}</p>
