@@ -1,6 +1,7 @@
 "use client";
-import React, { useState, useMemo, useReducer } from "react";
+import React, { useState, useMemo, useReducer, useEffect, useRef } from "react";
 import { useFetchPhotos } from "../hooks/useFetchPhotos";
+import { useDebounce } from "../hooks/useDebounce";
 import { favoritesReducer, initialState } from "../reducer/favoritesReducer";
 import PhotoCard from "./PhotoCard";
 
@@ -8,16 +9,26 @@ export default function Gallery() {
   const { photos, loading, error } = useFetchPhotos();
   const [favs, dispatch] = useReducer(favoritesReducer, initialState);
   const [search, setSearch] = useState("");
+const debouncedSearch = useDebounce(search, 300);
+const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsSearching(true);
     setSearch(e.target.value);
   };
 
   const filteredPhotos = useMemo(() => {
     return photos.filter((p) =>
-      p.author.toLowerCase().includes(search.toLowerCase())
+      p.author.toLowerCase().includes(debouncedSearch.toLowerCase())
     );
-  }, [photos, search]);
+  }, [photos, debouncedSearch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsSearching(false);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [debouncedSearch]);
 
   if (loading)
     return (
@@ -29,6 +40,7 @@ export default function Gallery() {
   if (error)
     return <div className="text-red-500 text-center p-10">{error}</div>;
 
+  
   return (
     <div className="max-w-6xl mx-auto p-4">
       <input
@@ -52,8 +64,10 @@ export default function Gallery() {
           ))}
         </div>
       ) : (
-        <div className="text-center rounded-xl">
-          <p className="text-xl text-gray-500 font-medium">No Result Found</p>
+       
+        
+       <div className="text-center rounded-xl">
+          <p className="text-xl text-gray-500 font-medium">{isSearching ?'Searching...': 'No Result Found'}</p>
         </div>
       )}
     </div>

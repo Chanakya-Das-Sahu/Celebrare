@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { Photo } from "../hooks/useFetchPhotos";
-import Image from "next/image";
 
 interface PhotoCardProps {
   photo: Photo;
